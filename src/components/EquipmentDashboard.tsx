@@ -255,14 +255,17 @@ const EquipmentDashboard = () => {
 
       <Tabs defaultValue="cardio" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3 bg-white/80 backdrop-blur-sm rounded-2xl p-1 shadow-lg border border-slate-200">
-          <TabsTrigger value="cardio" className="rounded-xl font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
-            Cardio ({cardioEquipment.length})
+          <TabsTrigger value="cardio" className="rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
+            <span className="sm:hidden">Cardio ({cardioEquipment.length})</span>
+            <span className="hidden sm:inline">Cardio ({cardioEquipment.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="weight-machines" className="rounded-xl font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
-            Weight Machines ({weightMachines.length})
+          <TabsTrigger value="weight-machines" className="rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
+            <span className="sm:hidden">Weights ({weightMachines.length})</span>
+            <span className="hidden sm:inline">Weight Machines ({weightMachines.length})</span>
           </TabsTrigger>
-          <TabsTrigger value="free-weights" className="rounded-xl font-medium data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
-            Free Weights ({freeWeights.length})
+          <TabsTrigger value="free-weights" className="rounded-xl font-medium text-xs sm:text-sm data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
+            <span className="sm:hidden">Free ({freeWeights.length})</span>
+            <span className="hidden sm:inline">Free Weights ({freeWeights.length})</span>
           </TabsTrigger>
         </TabsList>
 
