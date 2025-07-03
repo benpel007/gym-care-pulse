@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CheckCircle, AlertTriangle, Wrench, ClipboardCheck, Search, Filter, Calendar, User } from "lucide-react";
 import { useMaintenanceLog } from "@/hooks/useMaintenanceLog";
 import { LogEntry, PRIORITY_COLORS } from "@/types";
+import ReportGenerator from "./ReportGenerator";
 
 const MaintenanceLog = () => {
   const { logEntries } = useMaintenanceLog();
@@ -91,6 +91,8 @@ const MaintenanceLog = () => {
         <h2 className="text-2xl font-bold text-slate-800 mb-2">Maintenance Log</h2>
         <p className="text-slate-600">Track all maintenance activities and issues</p>
       </div>
+
+      <ReportGenerator />
 
       <Card className="bg-white/80 backdrop-blur-sm border-slate-200">
         <CardHeader>
