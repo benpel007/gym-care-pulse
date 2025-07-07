@@ -58,14 +58,8 @@ export interface Photo {
   uploadedBy: string;
 }
 
-export const STAFF_MEMBERS = [
-  'John Smith',
-  'Sarah Johnson',
-  'Mike Davis',
-  'Lisa Wilson',
-  'David Brown',
-  'Emma Taylor'
-];
+// Remove hardcoded staff members - users will add their own through settings
+export const STAFF_MEMBERS: string[] = [];
 
 export const PRIORITY_COLORS = {
   low: 'bg-green-100 text-green-800 border-green-200',
