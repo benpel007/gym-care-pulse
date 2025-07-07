@@ -4,12 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dumbbell, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const GymHeader: React.FC = () => {
   const { gymProfile, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
+  };
+
+  const handleSettingsClick = () => {
+    navigate('/settings');
   };
 
   return (
@@ -37,6 +43,7 @@ const GymHeader: React.FC = () => {
             <Button 
               variant="outline" 
               size="sm"
+              onClick={handleSettingsClick}
               className="border-slate-200 text-slate-700 hover:bg-slate-50"
             >
               <Settings className="w-4 h-4 mr-2" />
