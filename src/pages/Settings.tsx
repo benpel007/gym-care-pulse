@@ -2,7 +2,7 @@
 import React from 'react';
 import GymHeader from "@/components/GymHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings, Users, Building, Bell, Clock } from "lucide-react";
+import { Settings as SettingsIcon, Users, Building, Bell, Clock } from "lucide-react";
 import StaffManagement from "@/components/settings/StaffManagement";
 import BusinessDetails from "@/components/settings/BusinessDetails";
 import OperatingHours from "@/components/settings/OperatingHours";
