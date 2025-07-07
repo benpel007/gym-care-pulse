@@ -78,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchGymProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('gym_profiles')
+        .from('gym_profiles' as any)
         .select('*')
         .eq('user_id', userId)
         .single();
@@ -88,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
 
-      setGymProfile(data);
+      setGymProfile(data as GymProfile);
     } catch (error) {
       console.error('Error fetching gym profile:', error);
     }
@@ -128,14 +128,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!gymProfile) return { error: new Error('No gym profile found') };
 
     const { data, error } = await supabase
-      .from('gym_profiles')
-      .update(updates)
+      .from('gym_profiles' as any)
+      .update(updates as any)
       .eq('id', gymProfile.id)
       .select()
       .single();
 
     if (!error && data) {
-      setGymProfile(data);
+      setGymProfile(data as GymProfile);
     }
 
     return { error };
