@@ -77,8 +77,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchGymProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('gym_profiles' as any)
+      const { data, error } = await (supabase as any)
+        .from('gym_profiles')
         .select('*')
         .eq('user_id', userId)
         .single();
@@ -127,9 +127,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateGymProfile = async (updates: Partial<GymProfile>) => {
     if (!gymProfile) return { error: new Error('No gym profile found') };
 
-    const { data, error } = await supabase
-      .from('gym_profiles' as any)
-      .update(updates as any)
+    const { data, error } = await (supabase as any)
+      .from('gym_profiles')
+      .update(updates)
       .eq('id', gymProfile.id)
       .select()
       .single();
