@@ -2,13 +2,18 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, AlertTriangle, Clock, Wrench, TrendingUp } from "lucide-react";
+import { CheckCircle, AlertTriangle, Clock, Wrench, TrendingUp, Plus } from "lucide-react";
 import { useEquipmentData } from "@/hooks/useEquipmentData";
 import { useDailyChecks } from "@/hooks/useDailyChecks";
+import { useMaintenanceLog } from "@/hooks/useMaintenanceLog";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { equipment } = useEquipmentData();
   const { checklistItems } = useDailyChecks();
+  const { logEntries } = useMaintenanceLog();
+  const navigate = useNavigate();
 
   const operationalCount = equipment.filter(eq => eq.status === 'operational').length;
   const overdueCount = equipment.filter(eq => new Date(eq.nextDue) < new Date()).length;
@@ -51,6 +56,8 @@ const Dashboard = () => {
     }
   ];
 
+  const recentLogEntries = logEntries.slice(0, 5);
+
   return (
     <div className="space-y-6">
       <div className="text-center py-4">
@@ -80,7 +87,7 @@ const Dashboard = () => {
                         stat.color === 'text-orange-600' ? 'bg-orange-500' :
                         stat.color === 'text-red-600' ? 'bg-red-500' : 'bg-blue-500'
                       }`}
-                      style={{ width: `${(stat.value / stat.total) * 100}%` }}
+                      style={{ width: `${stat.total > 0 ? (stat.value / stat.total) * 100 : 0}%` }}
                     />
                   </div>
                 )}
@@ -100,21 +107,37 @@ const Dashboard = () => {
             <CardDescription className="text-slate-600">Latest maintenance activities</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {equipment.slice(0, 5).map((eq) => (
-              <div key={eq.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
-                <div>
-                  <p className="font-medium text-slate-800">{eq.name}</p>
-                  <p className="text-sm text-slate-600">{eq.location}</p>
+            {recentLogEntries.length > 0 ? (
+              recentLogEntries.map((entry) => (
+                <div key={entry.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-200">
+                  <div>
+                    <p className="font-medium text-slate-800">{entry.description}</p>
+                    <p className="text-sm text-slate-600">{entry.staff} • {new Date(entry.timestamp).toLocaleDateString()}</p>
+                  </div>
+                  <Badge variant="outline" className={
+                    entry.status === 'completed' ? 'border-green-200 text-green-800' :
+                    entry.status === 'in-progress' ? 'border-yellow-200 text-yellow-800' :
+                    'border-slate-200 text-slate-800'
+                  }>
+                    {entry.status}
+                  </Badge>
                 </div>
-                <Badge variant="outline" className={
-                  eq.status === 'operational' ? 'border-green-200 text-green-800' :
-                  eq.status === 'maintenance' ? 'border-yellow-200 text-yellow-800' :
-                  'border-red-200 text-red-800'
-                }>
-                  {eq.status}
-                </Badge>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <Wrench className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-500 mb-4">No maintenance activities yet</p>
+                <Button 
+                  onClick={() => navigate('/')} 
+                  variant="outline" 
+                  size="sm"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Equipment
+                </Button>
               </div>
-            ))}
+            )}
           </CardContent>
         </Card>
 
@@ -130,7 +153,7 @@ const Dashboard = () => {
             <div className="space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-2xl font-bold text-slate-800">
-                  {Math.round((completedToday / Math.max(checklistItems.length, 1)) * 100)}%
+                  {checklistItems.length > 0 ? Math.round((completedToday / checklistItems.length) * 100) : 0}%
                 </span>
                 <span className="text-sm text-slate-600">
                   {completedToday} of {checklistItems.length} tasks
@@ -139,7 +162,7 @@ const Dashboard = () => {
               <div className="w-full bg-slate-200 rounded-full h-3">
                 <div 
                   className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500"
-                  style={{ width: `${(completedToday / Math.max(checklistItems.length, 1)) * 100}%` }}
+                  style={{ width: `${checklistItems.length > 0 ? (completedToday / checklistItems.length) * 100 : 0}%` }}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4 text-sm">
