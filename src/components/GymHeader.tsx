@@ -1,63 +1,66 @@
 
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Dumbbell, LogOut, Settings } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { Settings, Calendar, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
-const GymHeader: React.FC = () => {
-  const { gymProfile, signOut } = useAuth();
+const GymHeader = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const handleSignOut = async () => {
-    await signOut();
-  };
-
-  const handleSettingsClick = () => {
-    navigate('/settings');
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    } else {
+      navigate('/auth');
+    }
   };
 
   return (
-    <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <header className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-              <Dumbbell className="w-6 h-6 text-white" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">FM</span>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-                {gymProfile?.gym_name || 'FitMaintain'}
-              </h1>
-              <p className="text-sm text-slate-600 font-medium">Equipment Management System</p>
-            </div>
+            <h1 className="text-xl font-bold text-slate-800">FitMaintain</h1>
           </div>
           
-          <div className="flex items-center gap-3">
-            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              Active
-            </Badge>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleSettingsClick}
-              className="border-slate-200 text-slate-700 hover:bg-slate-50"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </Button>
-            
-            <Button 
-              onClick={handleSignOut}
+          <div className="flex items-center space-x-2">
+            <Button
               variant="outline"
               size="sm"
-              className="border-red-200 text-red-700 hover:bg-red-50"
+              onClick={() => navigate('/maintenance-schedule')}
+              className="flex items-center gap-2 hover:bg-slate-100"
             >
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
+              <Calendar className="w-4 h-4" />
+              <span className="hidden sm:inline">Schedule</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate('/settings')}
+              className="flex items-center gap-2 hover:bg-slate-100"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="hidden sm:inline">Settings</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLogout}
+              className="flex items-center gap-2 hover:bg-slate-100"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         </div>
