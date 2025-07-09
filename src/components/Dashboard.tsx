@@ -6,13 +6,16 @@ import { CheckCircle, AlertTriangle, Clock, Wrench, TrendingUp, Plus } from "luc
 import { useEquipmentData } from "@/hooks/useEquipmentData";
 import { useDailyChecks } from "@/hooks/useDailyChecks";
 import { useMaintenanceLog } from "@/hooks/useMaintenanceLog";
+import { useMaintenanceSchedule } from "@/hooks/useMaintenanceSchedule";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import UpcomingMaintenance from "@/components/maintenance/UpcomingMaintenance";
 
 const Dashboard = () => {
   const { equipment } = useEquipmentData();
   const { checklistItems } = useDailyChecks();
   const { logEntries } = useMaintenanceLog();
+  const { scheduledMaintenance } = useMaintenanceSchedule();
   const navigate = useNavigate();
 
   const operationalCount = equipment.filter(eq => eq.status === 'operational').length;
@@ -23,6 +26,13 @@ const Dashboard = () => {
     item.completedAt && 
     new Date(item.completedAt).toDateString() === new Date().toDateString()
   ).length;
+
+  // Filter maintenance tasks for the upcoming week
+  const now = new Date();
+  const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const upcomingWeekTasks = scheduledMaintenance.filter(task => 
+    task.scheduledDate >= now && task.scheduledDate <= oneWeekFromNow && task.status === 'scheduled'
+  );
 
   const stats = [
     {
@@ -57,6 +67,13 @@ const Dashboard = () => {
   ];
 
   const recentLogEntries = logEntries.slice(0, 5);
+
+  const priorityColors = {
+    low: 'bg-green-100 text-green-800 border-green-200',
+    medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    high: 'bg-orange-100 text-orange-800 border-orange-200',
+    urgent: 'bg-red-100 text-red-800 border-red-200'
+  };
 
   return (
     <div className="space-y-6">
@@ -97,7 +114,7 @@ const Dashboard = () => {
         })}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="bg-white/80 backdrop-blur-sm border-slate-200 hover:shadow-lg transition-all duration-200">
           <CardHeader>
             <CardTitle className="text-slate-800 flex items-center gap-2">
@@ -178,6 +195,13 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+
+        <div className="lg:row-span-1">
+          <UpcomingMaintenance
+            scheduledMaintenance={upcomingWeekTasks}
+            priorityColors={priorityColors}
+          />
+        </div>
       </div>
     </div>
   );

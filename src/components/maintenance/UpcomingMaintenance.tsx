@@ -28,8 +28,8 @@ const UpcomingMaintenance = ({ scheduledMaintenance, priorityColors }: UpcomingM
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-slate-200">
       <CardHeader className="pb-3">
-        <CardTitle className="text-slate-800 text-lg">Upcoming Maintenance</CardTitle>
-        <CardDescription className="text-sm">Next 5 scheduled maintenance tasks</CardDescription>
+        <CardTitle className="text-slate-800 text-lg">This Week's Tasks</CardTitle>
+        <CardDescription className="text-sm">Upcoming maintenance for the next 7 days</CardDescription>
       </CardHeader>
       <CardContent>
         {scheduledMaintenance.length > 0 ? (
@@ -62,7 +62,7 @@ const UpcomingMaintenance = ({ scheduledMaintenance, priorityColors }: UpcomingM
         ) : (
           <div className="text-center py-4 md:py-6">
             <Clock className="w-6 md:w-8 h-6 md:h-8 text-slate-300 mx-auto mb-2" />
-            <p className="text-slate-500 text-sm">No upcoming maintenance</p>
+            <p className="text-slate-500 text-sm">No maintenance scheduled this week</p>
           </div>
         )}
       </CardContent>
