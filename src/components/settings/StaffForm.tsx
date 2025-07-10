@@ -29,6 +29,11 @@ interface StaffFormProps {
 }
 
 const StaffForm = ({ isOpen, onClose, onSubmit, editingStaff, formData, setFormData }: StaffFormProps) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await onSubmit(e);
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
@@ -38,7 +43,7 @@ const StaffForm = ({ isOpen, onClose, onSubmit, editingStaff, formData, setFormD
             {editingStaff ? 'Update' : 'Enter'} the staff member's information.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={onSubmit}>
+        <form onSubmit={handleFormSubmit}>
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="name">Name *</Label>
@@ -47,6 +52,7 @@ const StaffForm = ({ isOpen, onClose, onSubmit, editingStaff, formData, setFormD
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
+                placeholder="Enter staff member's name"
               />
             </div>
             <div className="grid gap-2">
@@ -65,6 +71,7 @@ const StaffForm = ({ isOpen, onClose, onSubmit, editingStaff, formData, setFormD
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="staff@example.com"
               />
             </div>
             <div className="grid gap-2">
@@ -73,6 +80,7 @@ const StaffForm = ({ isOpen, onClose, onSubmit, editingStaff, formData, setFormD
                 id="phone"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                placeholder="(555) 123-4567"
               />
             </div>
             <div className="grid gap-2">
@@ -89,6 +97,9 @@ const StaffForm = ({ isOpen, onClose, onSubmit, editingStaff, formData, setFormD
             </div>
           </div>
           <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
             <Button type="submit">
               {editingStaff ? 'Update' : 'Add'} Staff
             </Button>

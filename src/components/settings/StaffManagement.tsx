@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DialogTrigger } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,64 +33,100 @@ const StaffManagement = () => {
   const fetchStaffMembers = async () => {
     if (!gymProfile?.id) return;
 
-    const { data, error } = await (supabase as any)
-      .from('staff_members')
-      .select('*')
-      .eq('gym_id', gymProfile.id)
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('staff_members')
+        .select('*')
+        .eq('gym_id', gymProfile.id)
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) {
+        console.error('Error fetching staff members:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch staff members",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setStaffMembers(data || []);
+    } catch (error) {
+      console.error('Error fetching staff members:', error);
       toast({
         title: "Error",
         description: "Failed to fetch staff members",
         variant: "destructive",
       });
-      return;
     }
-
-    setStaffMembers(data || []);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!gymProfile?.id) return;
-
-    const staffData = {
-      ...formData,
-      gym_id: gymProfile.id,
-    };
-
-    let error;
-    if (editingStaff) {
-      const { error: updateError } = await (supabase as any)
-        .from('staff_members')
-        .update(staffData)
-        .eq('id', editingStaff.id);
-      error = updateError;
-    } else {
-      const { error: insertError } = await (supabase as any)
-        .from('staff_members')
-        .insert([staffData]);
-      error = insertError;
-    }
-
-    if (error) {
+    if (!gymProfile?.id) {
       toast({
         title: "Error",
-        description: `Failed to ${editingStaff ? 'update' : 'add'} staff member`,
+        description: "No gym profile found",
         variant: "destructive",
       });
       return;
     }
 
-    toast({
-      title: "Success",
-      description: `Staff member ${editingStaff ? 'updated' : 'added'} successfully`,
-    });
+    if (!formData.name.trim()) {
+      toast({
+        title: "Error",
+        description: "Staff name is required",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    setIsDialogOpen(false);
-    resetForm();
-    fetchStaffMembers();
+    try {
+      const staffData = {
+        ...formData,
+        gym_id: gymProfile.id,
+      };
+
+      let error;
+      if (editingStaff) {
+        const { error: updateError } = await supabase
+          .from('staff_members')
+          .update(staffData)
+          .eq('id', editingStaff.id);
+        error = updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('staff_members')
+          .insert([staffData]);
+        error = insertError;
+      }
+
+      if (error) {
+        console.error('Error saving staff member:', error);
+        toast({
+          title: "Error",
+          description: `Failed to ${editingStaff ? 'update' : 'add'} staff member: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: `Staff member ${editingStaff ? 'updated' : 'added'} successfully`,
+      });
+
+      setIsDialogOpen(false);
+      resetForm();
+      fetchStaffMembers();
+    } catch (error) {
+      console.error('Error saving staff member:', error);
+      toast({
+        title: "Error",
+        description: `Failed to ${editingStaff ? 'update' : 'add'} staff member`,
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEdit = (staff: StaffMember) => {
@@ -107,26 +142,40 @@ const StaffManagement = () => {
   };
 
   const handleDelete = async (staffId: string) => {
-    const { error } = await (supabase as any)
-      .from('staff_members')
-      .delete()
-      .eq('id', staffId);
+    if (!confirm('Are you sure you want to delete this staff member?')) {
+      return;
+    }
 
-    if (error) {
+    try {
+      const { error } = await supabase
+        .from('staff_members')
+        .delete()
+        .eq('id', staffId);
+
+      if (error) {
+        console.error('Error deleting staff member:', error);
+        toast({
+          title: "Error",
+          description: "Failed to delete staff member",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "Staff member deleted successfully",
+      });
+
+      fetchStaffMembers();
+    } catch (error) {
+      console.error('Error deleting staff member:', error);
       toast({
         title: "Error",
         description: "Failed to delete staff member",
         variant: "destructive",
       });
-      return;
     }
-
-    toast({
-      title: "Success",
-      description: "Staff member deleted successfully",
-    });
-
-    fetchStaffMembers();
   };
 
   const resetForm = () => {
@@ -140,6 +189,12 @@ const StaffManagement = () => {
     setEditingStaff(null);
   };
 
+  const handleAddStaff = () => {
+    console.log('Add staff button clicked');
+    resetForm();
+    setIsDialogOpen(true);
+  };
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-slate-200">
       <CardHeader>
@@ -149,10 +204,7 @@ const StaffManagement = () => {
             <CardDescription>Add and manage your gym staff members</CardDescription>
           </div>
           <Button 
-            onClick={() => {
-              resetForm();
-              setIsDialogOpen(true);
-            }}
+            onClick={handleAddStaff}
             className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
           >
             <Plus className="w-4 h-4 mr-2" />
@@ -161,12 +213,13 @@ const StaffManagement = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <StaffTable
-          staffMembers={staffMembers}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-        {staffMembers.length === 0 && (
+        {staffMembers.length > 0 ? (
+          <StaffTable
+            staffMembers={staffMembers}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        ) : (
           <div className="text-center py-8 text-slate-500">
             No staff members added yet. Click "Add Staff" to get started.
           </div>
@@ -175,7 +228,10 @@ const StaffManagement = () => {
 
       <StaffForm
         isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        onClose={() => {
+          setIsDialogOpen(false);
+          resetForm();
+        }}
         onSubmit={handleSubmit}
         editingStaff={editingStaff}
         formData={formData}
