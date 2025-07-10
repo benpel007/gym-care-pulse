@@ -58,8 +58,15 @@ export interface Photo {
   uploadedBy: string;
 }
 
-// Remove hardcoded staff members - users will add their own through settings
-export const STAFF_MEMBERS: string[] = [];
+export interface StaffMember {
+  id: string;
+  name: string;
+  position?: string;
+  email?: string;
+  phone?: string;
+  hire_date: string;
+  status: 'active' | 'inactive';
+}
 
 export const PRIORITY_COLORS = {
   low: 'bg-green-100 text-green-800 border-green-200',
