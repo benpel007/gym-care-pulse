@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, CheckCircle, AlertTriangle, Edit, Calendar, Camera, MapPin } from "lucide-react";
 import { useEquipmentData } from "@/hooks/useEquipmentData";
-import { Equipment, STATUS_COLORS } from "@/types";
+import { Equipment, STATUS_COLORS, IssueReport } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import StaffSelector from "@/components/StaffSelector";
 import IssueReportModal from "@/components/IssueReportModal";
@@ -61,6 +60,16 @@ const EquipmentDashboard = () => {
   const handleReportIssue = (equipmentItem: Equipment) => {
     setSelectedEquipment(equipmentItem);
     setShowIssueModal(true);
+  };
+
+  const handleIssueSubmit = (report: Omit<IssueReport, 'id' | 'equipmentName' | 'reportedAt'>) => {
+    // Handle issue report submission here
+    console.log('Issue report submitted:', report);
+    toast({
+      title: "Issue Reported",
+      description: `Issue reported for ${selectedEquipment?.name}`,
+    });
+    setShowIssueModal(false);
   };
 
   const handleAddEquipment = () => {
@@ -294,11 +303,14 @@ const EquipmentDashboard = () => {
         </TabsContent>
       </Tabs>
 
-      <IssueReportModal 
-        isOpen={showIssueModal} 
-        onClose={() => setShowIssueModal(false)}
-        equipment={selectedEquipment}
-      />
+      {selectedEquipment && (
+        <IssueReportModal 
+          isOpen={showIssueModal} 
+          onClose={() => setShowIssueModal(false)}
+          equipment={selectedEquipment}
+          onSubmit={handleIssueSubmit}
+        />
+      )}
     </div>
   );
 };

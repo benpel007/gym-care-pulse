@@ -5,14 +5,23 @@ import { useMaintenanceLog } from './useMaintenanceLog';
 
 export const useDailyChecks = () => {
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   const { addLogEntry } = useMaintenanceLog();
 
   useEffect(() => {
-    const stored = localStorage.getItem('daily-checklist');
-    if (stored) {
-      setChecklistItems(JSON.parse(stored));
+    setLoading(true);
+    try {
+      const stored = localStorage.getItem('daily-checklist');
+      if (stored) {
+        setChecklistItems(JSON.parse(stored));
+      }
+      setError(null);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
     }
-    // No initial dummy data - users start with empty checklist
   }, []);
 
   const saveChecklistItems = (items: ChecklistItem[]) => {
@@ -36,6 +45,24 @@ export const useDailyChecks = () => {
         status: 'completed'
       });
     }
+  };
+
+  const toggleCheck = async (check: ChecklistItem) => {
+    const updatedCheck = {
+      ...check,
+      completed: !check.completed,
+      completedBy: check.completed ? undefined : 'User',
+      completedAt: check.completed ? undefined : new Date().toISOString()
+    };
+    updateChecklistItem(updatedCheck);
+  };
+
+  const updateNotes = async (check: ChecklistItem, notes: string) => {
+    const updatedCheck = {
+      ...check,
+      notes: notes
+    };
+    updateChecklistItem(updatedCheck);
   };
 
   const addChecklistItem = (newItem: ChecklistItem) => {
@@ -62,6 +89,11 @@ export const useDailyChecks = () => {
   };
 
   return {
+    checks: checklistItems,
+    loading,
+    error,
+    toggleCheck,
+    updateNotes,
     checklistItems,
     updateChecklistItem,
     addChecklistItem,
