@@ -34,6 +34,7 @@ const StaffManagement = () => {
     if (!gymProfile?.id) return;
 
     try {
+      console.log('Fetching staff members for gym:', gymProfile.id);
       const { data, error } = await supabase
         .from('staff_members')
         .select('*')
@@ -49,6 +50,8 @@ const StaffManagement = () => {
         });
         return;
       }
+
+      console.log('Fetched staff members:', data);
 
       // Transform the data to match our StaffMember interface
       const transformedData: StaffMember[] = (data || []).map(staff => ({
@@ -74,7 +77,11 @@ const StaffManagement = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted with data:', formData);
+    console.log('Gym profile:', gymProfile);
+
     if (!gymProfile?.id) {
+      console.error('No gym profile found');
       toast({
         title: "Error",
         description: "No gym profile found",
@@ -84,6 +91,7 @@ const StaffManagement = () => {
     }
 
     if (!formData.name.trim()) {
+      console.error('Staff name is required');
       toast({
         title: "Error",
         description: "Staff name is required",
@@ -94,22 +102,26 @@ const StaffManagement = () => {
 
     try {
       const staffData = {
-        name: formData.name,
-        position: formData.position || null,
-        email: formData.email || null,
-        phone: formData.phone || null,
+        name: formData.name.trim(),
+        position: formData.position.trim() || null,
+        email: formData.email.trim() || null,
+        phone: formData.phone.trim() || null,
         status: formData.status,
         gym_id: gymProfile.id,
       };
 
+      console.log('Submitting staff data:', staffData);
+
       let error;
       if (editingStaff) {
+        console.log('Updating staff member:', editingStaff.id);
         const { error: updateError } = await supabase
           .from('staff_members')
           .update(staffData)
           .eq('id', editingStaff.id);
         error = updateError;
       } else {
+        console.log('Creating new staff member');
         const { error: insertError } = await supabase
           .from('staff_members')
           .insert([staffData]);
@@ -126,6 +138,7 @@ const StaffManagement = () => {
         return;
       }
 
+      console.log('Staff member saved successfully');
       toast({
         title: "Success",
         description: `Staff member ${editingStaff ? 'updated' : 'added'} successfully`,
@@ -145,6 +158,7 @@ const StaffManagement = () => {
   };
 
   const handleEdit = (staff: StaffMember) => {
+    console.log('Editing staff member:', staff);
     setEditingStaff(staff);
     setFormData({
       name: staff.name,
@@ -157,6 +171,7 @@ const StaffManagement = () => {
   };
 
   const handleDelete = async (staffId: string) => {
+    console.log('Deleting staff member:', staffId);
     if (!confirm('Are you sure you want to delete this staff member?')) {
       return;
     }
@@ -210,6 +225,12 @@ const StaffManagement = () => {
     setIsDialogOpen(true);
   };
 
+  const handleCloseDialog = () => {
+    console.log('Closing dialog');
+    setIsDialogOpen(false);
+    resetForm();
+  };
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm shadow-lg border-slate-200">
       <CardHeader>
@@ -243,10 +264,7 @@ const StaffManagement = () => {
 
       <StaffForm
         isOpen={isDialogOpen}
-        onClose={() => {
-          setIsDialogOpen(false);
-          resetForm();
-        }}
+        onClose={handleCloseDialog}
         onSubmit={handleSubmit}
         editingStaff={editingStaff}
         formData={formData}
