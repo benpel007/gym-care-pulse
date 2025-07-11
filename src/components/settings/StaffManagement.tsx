@@ -50,7 +50,18 @@ const StaffManagement = () => {
         return;
       }
 
-      setStaffMembers(data || []);
+      // Transform the data to match our StaffMember interface
+      const transformedData: StaffMember[] = (data || []).map(staff => ({
+        id: staff.id,
+        name: staff.name,
+        position: staff.position || undefined,
+        email: staff.email || undefined,
+        phone: staff.phone || undefined,
+        hire_date: staff.hire_date,
+        status: staff.status as 'active' | 'inactive'
+      }));
+
+      setStaffMembers(transformedData);
     } catch (error) {
       console.error('Error fetching staff members:', error);
       toast({
@@ -83,7 +94,11 @@ const StaffManagement = () => {
 
     try {
       const staffData = {
-        ...formData,
+        name: formData.name,
+        position: formData.position || null,
+        email: formData.email || null,
+        phone: formData.phone || null,
+        status: formData.status,
         gym_id: gymProfile.id,
       };
 
