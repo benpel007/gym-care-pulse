@@ -9,6 +9,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Settings from "./pages/Settings";
 import MaintenanceSchedule from "./pages/MaintenanceSchedule";
+import MaintenanceCheck from "./pages/MaintenanceCheck";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -36,6 +37,11 @@ const App = () => (
             <Route path="/maintenance-schedule" element={
               <ProtectedRoute>
                 <MaintenanceSchedule />
+              </ProtectedRoute>
+            } />
+            <Route path="/maintenance-check/:date" element={
+              <ProtectedRoute>
+                <MaintenanceCheck />
               </ProtectedRoute>
             } />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

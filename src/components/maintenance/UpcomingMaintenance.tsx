@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Clock, Wrench, MapPin } from "lucide-react";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
 
 interface ScheduledMaintenance {
   id: string;
@@ -25,6 +26,13 @@ interface UpcomingMaintenanceProps {
 }
 
 const UpcomingMaintenance = ({ scheduledMaintenance, priorityColors }: UpcomingMaintenanceProps) => {
+  const navigate = useNavigate();
+
+  const handleTaskClick = (task: ScheduledMaintenance) => {
+    const dateParam = format(task.scheduledDate, 'yyyy-MM-dd');
+    navigate(`/maintenance-check/${dateParam}`);
+  };
+
   return (
     <Card className="bg-white/80 backdrop-blur-sm border-slate-200">
       <CardHeader className="pb-3">
@@ -38,7 +46,11 @@ const UpcomingMaintenance = ({ scheduledMaintenance, priorityColors }: UpcomingM
               .sort((a, b) => a.scheduledDate.getTime() - b.scheduledDate.getTime())
               .slice(0, 5)
               .map((maintenance) => (
-                <div key={maintenance.id} className="flex items-center justify-between p-2 md:p-3 bg-slate-50 rounded border border-slate-200">
+                <div 
+                  key={maintenance.id} 
+                  className="flex items-center justify-between p-2 md:p-3 bg-slate-50 rounded border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors"
+                  onClick={() => handleTaskClick(maintenance)}
+                >
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-slate-800 text-sm truncate">{maintenance.title}</p>
                     <div className="flex items-center gap-1 text-xs text-slate-600">
