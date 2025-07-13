@@ -4,11 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, CheckCircle, AlertTriangle, Edit, Calendar, Camera, MapPin, Upload } from "lucide-react";
+import { Plus, CheckCircle, AlertTriangle, Edit, Calendar, Camera, MapPin, Upload, Trash2 } from "lucide-react";
 import { useEquipmentData } from "@/hooks/useEquipmentData";
 import { Equipment, STATUS_COLORS, IssueReport } from "@/types";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +18,7 @@ import IssueReportModal from "@/components/IssueReportModal";
 import CsvUploadModal from "@/components/CsvUploadModal";
 
 const EquipmentDashboard = () => {
-  const { equipment, addEquipment, updateEquipment } = useEquipmentData();
+  const { equipment, addEquipment, updateEquipment, deleteEquipment } = useEquipmentData();
   const [selectedStaff, setSelectedStaff] = useState<string>('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showCsvUploadModal, setShowCsvUploadModal] = useState(false);
@@ -62,6 +63,14 @@ const EquipmentDashboard = () => {
   const handleReportIssue = (equipmentItem: Equipment) => {
     setSelectedEquipment(equipmentItem);
     setShowIssueModal(true);
+  };
+
+  const handleDeleteEquipment = (equipmentItem: Equipment) => {
+    deleteEquipment(equipmentItem.id);
+    toast({
+      title: "Equipment Deleted",
+      description: `${equipmentItem.name} has been removed from your inventory.`,
+    });
   };
 
   const handleIssueSubmit = (report: Omit<IssueReport, 'id' | 'equipmentName' | 'reportedAt'>) => {
@@ -180,6 +189,38 @@ const EquipmentDashboard = () => {
               <AlertTriangle className="w-4 h-4 mr-1" />
               Issue
             </Button>
+          </div>
+          
+          <div className="flex justify-end">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="border-red-200 text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="w-4 h-4 mr-1" />
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Equipment</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete "{item.name}"? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={() => handleDeleteEquipment(item)}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
       </CardContent>
