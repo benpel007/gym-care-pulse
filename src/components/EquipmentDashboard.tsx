@@ -8,17 +8,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, CheckCircle, AlertTriangle, Edit, Calendar, Camera, MapPin } from "lucide-react";
+import { Plus, CheckCircle, AlertTriangle, Edit, Calendar, Camera, MapPin, Upload } from "lucide-react";
 import { useEquipmentData } from "@/hooks/useEquipmentData";
 import { Equipment, STATUS_COLORS, IssueReport } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import StaffSelector from "@/components/StaffSelector";
 import IssueReportModal from "@/components/IssueReportModal";
+import CsvUploadModal from "@/components/CsvUploadModal";
 
 const EquipmentDashboard = () => {
   const { equipment, addEquipment, updateEquipment } = useEquipmentData();
   const [selectedStaff, setSelectedStaff] = useState<string>('');
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showCsvUploadModal, setShowCsvUploadModal] = useState(false);
   const [showIssueModal, setShowIssueModal] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<Equipment | null>(null);
   const [newEquipment, setNewEquipment] = useState({
@@ -110,6 +112,10 @@ const EquipmentDashboard = () => {
     });
   };
 
+  const handleBulkUpload = (equipmentList: Equipment[]) => {
+    equipmentList.forEach(item => addEquipment(item));
+  };
+
   const EquipmentCard = ({ item }: { item: Equipment }) => (
     <Card className="bg-white/80 backdrop-blur-sm border-slate-200 hover:shadow-lg transition-all duration-200 hover:-translate-y-1">
       <CardHeader className="pb-3">
@@ -187,77 +193,87 @@ const EquipmentDashboard = () => {
           <h2 className="text-2xl font-bold text-slate-800">Equipment Management</h2>
           <p className="text-slate-600">Monitor and maintain all gym equipment</p>
         </div>
-        <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
-          <DialogTrigger asChild>
-            <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Equipment
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Add New Equipment</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="name">Equipment Name *</Label>
-                <Input
-                  id="name"
-                  value={newEquipment.name}
-                  onChange={(e) => setNewEquipment({...newEquipment, name: e.target.value})}
-                  placeholder="Enter equipment name"
-                />
-              </div>
-              <div>
-                <Label htmlFor="category">Category</Label>
-                <Select value={newEquipment.category} onValueChange={(value: Equipment['category']) => setNewEquipment({...newEquipment, category: value})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="cardio">Cardio Equipment</SelectItem>
-                    <SelectItem value="weight-machines">Weight Machines</SelectItem>
-                    <SelectItem value="free-weights">Free Weight Equipment</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="location">Location *</Label>
-                <Input
-                  id="location"
-                  value={newEquipment.location}
-                  onChange={(e) => setNewEquipment({...newEquipment, location: e.target.value})}
-                  placeholder="Enter location"
-                />
-              </div>
-              <div>
-                <Label htmlFor="status">Status</Label>
-                <Select value={newEquipment.status} onValueChange={(value: Equipment['status']) => setNewEquipment({...newEquipment, status: value})}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="operational">Operational</SelectItem>
-                    <SelectItem value="maintenance">Maintenance</SelectItem>
-                    <SelectItem value="broken">Broken</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="notes">Notes</Label>
-                <Textarea
-                  id="notes"
-                  value={newEquipment.notes}
-                  onChange={(e) => setNewEquipment({...newEquipment, notes: e.target.value})}
-                  placeholder="Additional notes..."
-                />
-              </div>
-              <Button onClick={handleAddEquipment} className="w-full">
+        <div className="flex gap-2">
+          <Button 
+            variant="outline"
+            onClick={() => setShowCsvUploadModal(true)}
+            className="bg-white hover:bg-slate-50"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Bulk Upload
+          </Button>
+          <Dialog open={showAddModal} onOpenChange={setShowAddModal}>
+            <DialogTrigger asChild>
+              <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white">
+                <Plus className="w-4 h-4 mr-2" />
                 Add Equipment
               </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Add New Equipment</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Equipment Name *</Label>
+                  <Input
+                    id="name"
+                    value={newEquipment.name}
+                    onChange={(e) => setNewEquipment({...newEquipment, name: e.target.value})}
+                    placeholder="Enter equipment name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="category">Category</Label>
+                  <Select value={newEquipment.category} onValueChange={(value: Equipment['category']) => setNewEquipment({...newEquipment, category: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="cardio">Cardio Equipment</SelectItem>
+                      <SelectItem value="weight-machines">Weight Machines</SelectItem>
+                      <SelectItem value="free-weights">Free Weight Equipment</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="location">Location *</Label>
+                  <Input
+                    id="location"
+                    value={newEquipment.location}
+                    onChange={(e) => setNewEquipment({...newEquipment, location: e.target.value})}
+                    placeholder="Enter location"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="status">Status</Label>
+                  <Select value={newEquipment.status} onValueChange={(value: Equipment['status']) => setNewEquipment({...newEquipment, status: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="operational">Operational</SelectItem>
+                      <SelectItem value="maintenance">Maintenance</SelectItem>
+                      <SelectItem value="broken">Broken</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="notes">Notes</Label>
+                  <Textarea
+                    id="notes"
+                    value={newEquipment.notes}
+                    onChange={(e) => setNewEquipment({...newEquipment, notes: e.target.value})}
+                    placeholder="Additional notes..."
+                  />
+                </div>
+                <Button onClick={handleAddEquipment} className="w-full">
+                  Add Equipment
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <StaffSelector selectedStaff={selectedStaff} onStaffChange={setSelectedStaff} />
@@ -311,6 +327,12 @@ const EquipmentDashboard = () => {
           onSubmit={handleIssueSubmit}
         />
       )}
+
+      <CsvUploadModal
+        isOpen={showCsvUploadModal}
+        onClose={() => setShowCsvUploadModal(false)}
+        onUpload={handleBulkUpload}
+      />
     </div>
   );
 };
